@@ -3,7 +3,7 @@ import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-# Define distributions
+# Define distributions 
 continuous_dists = ["Uniform Continuous", "Normal", "Gamma", "Exponential", "Pareto", "Beta Distribution"]
 discrete_dists = ["Uniform", "Bernoulli", "Binomial", "Hypergeometric", "Geometric", "Negative Binomial", "Poisson"]
 
@@ -59,7 +59,7 @@ def get_distribution_data(dist_name, params, dist_type):
             mean = a / (a + b)
             std = np.sqrt(a * b / ((a + b)**2 * (a + b + 1)))
 
-    else:
+    else: #discrete
         if dist_name == "Uniform":
             a, b = params["a"], params["b"]
             x = np.arange(a, b + 1)
