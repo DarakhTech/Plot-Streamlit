@@ -8,64 +8,14 @@ continuous_dists = ["Uniform Continuous", "Normal", "Gamma", "Exponential", "Par
 discrete_dists = ["Uniform", "Bernoulli", "Binomial", "Hypergeometric", "Geometric", "Negative Binomial", "Poisson"]
 
 def get_distribution_data(dist_name, params, dist_type):
+    # Only handle discrete distributions now
     x = None
     pdf = None
     cdf = None
     mean = None
     std = None
 
-    if dist_type == "Continuous":
-        if dist_name == "Normal":
-            mu, sigma = params["mu"], params["sigma"]
-            x = np.linspace(mu - 4*sigma, mu + 4*sigma, 500)
-            pdf = stats.norm.pdf(x, mu, sigma)
-            cdf = stats.norm.cdf(x, mu, sigma)
-            mean, std = mu, sigma
-
-        elif dist_name == "Uniform Continuous":
-            a, b = params["a"], params["b"]
-            x = np.linspace(a, b, 500)
-            pdf = stats.uniform.pdf(x, a, b - a)
-            cdf = stats.uniform.cdf(x, a, b - a)
-            mean = (a + b) / 2
-            std = np.sqrt((b - a)**2 / 12)
-
-        elif dist_name == "Gamma":
-            shape, scale = params["shape"], params["scale"]
-            x = np.linspace(0, stats.gamma.ppf(0.99, shape, scale=scale), 500)
-            pdf = stats.gamma.pdf(x, shape, scale=scale)
-            cdf = stats.gamma.cdf(x, shape, scale=scale)
-            mean = shape * scale
-            std = np.sqrt(shape) * scale
-
-        elif dist_name == "Exponential":
-            rate = params["rate"]
-            scale = 1 / rate
-            x = np.linspace(0, stats.expon.ppf(0.99, scale=scale), 500)
-            pdf = stats.expon.pdf(x, scale=scale)
-            cdf = stats.expon.cdf(x, scale=scale)
-            mean = scale
-            std = scale
-
-        elif dist_name == "Pareto":
-            b = params["b"]
-            x = np.linspace(stats.pareto.ppf(0.01, b), stats.pareto.ppf(0.99, b), 500)
-            pdf = stats.pareto.pdf(x, b)
-            cdf = stats.pareto.cdf(x, b)
-            if b > 1:
-                mean = b / (b - 1)
-            if b > 2:
-                std = np.sqrt(b / ((b - 1)**2 * (b - 2)))
-
-        elif dist_name == "Beta Distribution":
-            a, b = params["a"], params["b"]
-            x = np.linspace(0, 1, 500)
-            pdf = stats.beta.pdf(x, a, b)
-            cdf = stats.beta.cdf(x, a, b)
-            mean = a / (a + b)
-            std = np.sqrt(a * b / ((a + b)**2 * (a + b + 1)))
-
-    else:  # Discrete
+    if dist_type == "Discrete":
         if dist_name == "Bernoulli":
             p = params["p"]
             x = [0, 1]
@@ -140,6 +90,39 @@ def get_params(dist_name, key_prefix):
         params["p"] = st.slider(f"{dist_name}: p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
     return params
 
+def get_continuous_xrange(dist1, params1, dist2, params2):
+    # Helper to get a reasonable x-range for both distributions
+    def get_range(dist, params):
+        if dist == "Normal":
+            mu, sigma = params["mu"], params["sigma"]
+            return mu - 4 * sigma, mu + 4 * sigma
+        elif dist == "Uniform Continuous":
+            a, b = params["a"], params["b"]
+            return a, b
+        elif dist == "Gamma":
+            shape, scale = params["shape"], params["scale"]
+            return 0, stats.gamma.ppf(0.995, shape, scale=scale)
+        elif dist == "Exponential":
+            rate = params["rate"]
+            scale = 1 / rate
+            return 0, stats.expon.ppf(0.995, scale=scale)
+        elif dist == "Pareto":
+            b = params["b"]
+            return stats.pareto.ppf(0.001, b), stats.pareto.ppf(0.995, b)
+        elif dist == "Beta Distribution":
+            return 0, 1
+        else:
+            return 0, 1
+    
+    a1, b1 = get_range(dist1, params1)
+    a2, b2 = get_range(dist2, params2)
+    a = min(a1, a2)
+    b = max(b1, b2)
+    # Avoid degenerate range
+    if a == b:
+        a, b = a - 1, b + 1
+    return np.linspace(a, b, 500)
+
 # Streamlit UI
 st.title("Compare Two Probability Distributions")
 dist_type = st.radio("Choose Distribution Type", ["Continuous", "Discrete"])
@@ -155,23 +138,71 @@ with col2:
     params2 = get_params(dist2, "dist2")
 
 # Get data
-x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type)
-x2, pdf2, cdf2, mean2, std2 = get_distribution_data(dist2, params2, dist_type)
+if dist_type == "Continuous":
+    x_common = get_continuous_xrange(dist1, params1, dist2, params2)
+    def get_dist_data(dist, params):
+        if dist == "Normal":
+            mu, sigma = params["mu"], params["sigma"]
+            pdf = stats.norm.pdf(x_common, mu, sigma)
+            cdf = stats.norm.cdf(x_common, mu, sigma)
+            mean, std = mu, sigma
+        elif dist == "Uniform Continuous":
+            a, b = params["a"], params["b"]
+            pdf = stats.uniform.pdf(x_common, a, b - a)
+            cdf = stats.uniform.cdf(x_common, a, b - a)
+            mean = (a + b) / 2
+            std = np.sqrt((b - a) ** 2 / 12)
+        elif dist == "Gamma":
+            shape, scale = params["shape"], params["scale"]
+            pdf = stats.gamma.pdf(x_common, shape, scale=scale)
+            cdf = stats.gamma.cdf(x_common, shape, scale=scale)
+            mean = shape * scale
+            std = np.sqrt(shape) * scale
+        elif dist == "Exponential":
+            rate = params["rate"]
+            scale = 1 / rate
+            pdf = stats.expon.pdf(x_common, scale=scale)
+            cdf = stats.expon.cdf(x_common, scale=scale)
+            mean = scale
+            std = scale
+        elif dist == "Pareto":
+            b = params["b"]
+            pdf = stats.pareto.pdf(x_common, b)
+            cdf = stats.pareto.cdf(x_common, b)
+            mean = b / (b - 1) if b > 1 else np.nan
+            std = np.sqrt(b / ((b - 1) ** 2 * (b - 2))) if b > 2 else np.nan
+        elif dist == "Beta Distribution":
+            a, b = params["a"], params["b"]
+            pdf = stats.beta.pdf(x_common, a, b)
+            cdf = stats.beta.cdf(x_common, a, b)
+            mean = a / (a + b)
+            std = np.sqrt(a * b / ((a + b) ** 2 * (a + b + 1)))
+        else:
+            pdf = cdf = mean = std = None
+        return pdf, cdf, mean, std
+    pdf1, cdf1, mean1, std1 = get_dist_data(dist1, params1)
+    pdf2, cdf2, mean2, std2 = get_dist_data(dist2, params2)
+    x1 = x2 = x_common
+else:
+    x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type)
+    x2, pdf2, cdf2, mean2, std2 = get_distribution_data(dist2, params2, dist_type)
 
 # Plot PDF/PMF
 st.subheader("PDF/PMF Plot")
 fig_pdf, ax_pdf = plt.subplots()
-ax_pdf.plot(x1, pdf1, label=f"{dist1} (μ={mean1:.2f}, σ={std1:.2f})")
-ax_pdf.plot(x2, pdf2, label=f"{dist2} (μ={mean2:.2f}, σ={std2:.2f})")
-ax_pdf.legend()
+ax_pdf.plot(x1, pdf1, label=f"{dist1} (μ={mean1:.2f}, σ={std1:.2f})", linewidth=2)
+ax_pdf.plot(x2, pdf2, label=f"{dist2} (μ={mean2:.2f}, σ={std2:.2f})", linewidth=2)
+# ax_pdf.legend()
 ax_pdf.set_title("PDF/PMF Comparison")
+ax_pdf.grid(True, linestyle='--', alpha=0.7)
 st.pyplot(fig_pdf)
 
 # Plot CDF
 st.subheader("CDF Plot")
 fig_cdf, ax_cdf = plt.subplots()
-ax_cdf.plot(x1, cdf1, label=dist1)
-ax_cdf.plot(x2, cdf2, label=dist2)
-ax_cdf.legend()
+ax_cdf.plot(x1, cdf1, label=dist1, linewidth=2)
+ax_cdf.plot(x2, cdf2, label=dist2, linewidth=2)
+# ax_cdf.legend()
 ax_cdf.set_title("CDF Comparison")
+ax_cdf.grid(True, linestyle='--', alpha=0.7)
 st.pyplot(fig_cdf)
