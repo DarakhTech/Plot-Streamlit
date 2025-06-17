@@ -59,7 +59,7 @@ def get_distribution_data(dist_name, params, dist_type):
             mean = a / (a + b)
             std = np.sqrt(a * b / ((a + b)**2 * (a + b + 1)))
 
-    else: #discrete
+    else:  # Discrete
         if dist_name == "Uniform":
             a, b = params["a"], params["b"]
             x = np.arange(a, b + 1)
@@ -110,13 +110,13 @@ def get_distribution_data(dist_name, params, dist_type):
 
     return x, pdf, cdf, mean, std
 
-# User input
+# Input widget rendering
 def get_params(dist_name, key_prefix):
     params = {}
     if dist_name == "Normal":
         params["mu"] = st.number_input("Mean (μ)", value=0.0, key=f"{key_prefix}_mu")
         params["sigma"] = st.number_input("Std Dev (σ)", value=1.0, min_value=0.01, key=f"{key_prefix}_sigma")
-    elif dist_name == "Uniform Continuous":
+    elif dist_name == "Uniform Continuous" or dist_name == "Uniform":
         params["a"] = st.number_input("Lower Bound (a)", value=0.0, key=f"{key_prefix}_a")
         params["b"] = st.number_input("Upper Bound (b)", value=1.0, key=f"{key_prefix}_b")
     elif dist_name == "Gamma":
@@ -129,63 +129,69 @@ def get_params(dist_name, key_prefix):
     elif dist_name == "Beta Distribution":
         params["a"] = st.number_input("Alpha (a)", value=2.0, key=f"{key_prefix}_a")
         params["b"] = st.number_input("Beta (b)", value=5.0, key=f"{key_prefix}_b")
-    elif dist_name == "Uniform":
-        params["a"] = st.number_input("Lower Bound (a)", value=1, key=f"{key_prefix}_a")
-        params["b"] = st.number_input("Upper Bound (b)", value=10, key=f"{key_prefix}_b")
-    elif dist_name == "Bernoulli":
-        params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
-    elif dist_name == "Binomial":
-        params["n"] = st.number_input("n", min_value=1, value=10, key=f"{key_prefix}_n")
-        params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
+    elif dist_name in ["Bernoulli", "Binomial", "Geometric", "Negative Binomial"]:
+        if dist_name in ["Bernoulli", "Geometric"]:
+            params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
+        else:
+            params["n"] = st.number_input("n", min_value=1, value=10, key=f"{key_prefix}_n")
+            params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
     elif dist_name == "Poisson":
         params["mu"] = st.number_input("Mean (μ)", value=3.0, key=f"{key_prefix}_mu")
-    elif dist_name == "Geometric":
-        params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
-    elif dist_name == "Negative Binomial":
-        params["n"] = st.number_input("Failures (n)", min_value=1, value=5, key=f"{key_prefix}_n")
-        params["p"] = st.slider("p", 0.0, 1.0, 0.5, key=f"{key_prefix}_p")
     return params
 
-# App layout
-st.title("📊 Probability Distribution Comparison")
-dist_type = st.radio("Choose Distribution Type", ["Continuous", "Discrete"])
-
+# --- UI Layout ---
+st.title("📊 Probability Distribution Comparator")
 col1, col2 = st.columns(2)
+
 with col1:
-    dist1 = st.selectbox("Distribution 1", continuous_dists if dist_type == "Continuous" else discrete_dists)
+    st.markdown("### 🟩 Distribution 1")
+    dist_type_1 = st.radio("Type", ["Continuous", "Discrete"], key="dist_type1")
+    dist1 = st.selectbox("Select Distribution", continuous_dists if dist_type_1 == "Continuous" else discrete_dists, key="dist1")
     params1 = get_params(dist1, "dist1")
+
 with col2:
-    dist2 = st.selectbox("Distribution 2", continuous_dists if dist_type == "Continuous" else discrete_dists)
+    st.markdown("### 🟧 Distribution 2")
+    dist_type_2 = st.radio("Type", ["Continuous", "Discrete"], key="dist_type2")
+    dist2 = st.selectbox("Select Distribution", continuous_dists if dist_type_2 == "Continuous" else discrete_dists, key="dist2")
     params2 = get_params(dist2, "dist2")
 
-x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type)
-x2, pdf2, cdf2, mean2, std2 = get_distribution_data(dist2, params2, dist_type)
+# Get data
+x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type_1)
+x2, pdf2, cdf2, mean2, std2 = get_distribution_data(dist2, params2, dist_type_2)
 
-label1 = f"{dist1} (μ={mean1:.2f}, σ={std1:.2f})" if mean1 and std1 else dist1
-label2 = f"{dist2} (μ={mean2:.2f}, σ={std2:.2f})" if mean2 and std2 else dist2
+label1 = f"{dist1} (μ={mean1:.2f}, σ={std1:.2f})" if mean1 is not None and std1 is not None else dist1
+label2 = f"{dist2} (μ={mean2:.2f}, σ={std2:.2f})" if mean2 is not None and std2 is not None else dist2
 
-# PDF/PMF plot
+# PDF/PMF Plot
 st.subheader("PDF/PMF Plot")
 fig_pdf, ax_pdf = plt.subplots()
-if dist_type == "Discrete":
+if dist_type_1 == "Discrete":
     ax_pdf.bar(x1, pdf1, label=label1, alpha=0.6)
-    ax_pdf.bar(x2, pdf2, label=label2, alpha=0.6)
 else:
     ax_pdf.plot(x1, pdf1, label=label1)
-    ax_pdf.plot(x2, pdf2, label=label2)
+
+if dist_type_2 == "Discrete":
+    ax_pdf.bar(x2, pdf2, label=label2, alpha=0.6, color='orange')
+else:
+    ax_pdf.plot(x2, pdf2, label=label2, color='orange')
+
 ax_pdf.set_title("PDF/PMF Comparison")
 ax_pdf.legend()
 st.pyplot(fig_pdf)
 
-# CDF plot
+# CDF Plot
 st.subheader("CDF Plot")
 fig_cdf, ax_cdf = plt.subplots()
-if dist_type == "Discrete":
-    ax_cdf.step(x1, cdf1, where="post", label=dist1)
-    ax_cdf.step(x2, cdf2, where="post", label=dist2)
+if dist_type_1 == "Discrete":
+    ax_cdf.step(x1, cdf1, where="post", label=label1)
 else:
-    ax_cdf.plot(x1, cdf1, label=dist1)
-    ax_cdf.plot(x2, cdf2, label=dist2)
+    ax_cdf.plot(x1, cdf1, label=label1)
+
+if dist_type_2 == "Discrete":
+    ax_cdf.step(x2, cdf2, where="post", label=label2, color='orange')
+else:
+    ax_cdf.plot(x2, cdf2, label=label2, color='orange')
+
 ax_cdf.set_title("CDF Comparison")
 ax_cdf.legend()
 st.pyplot(fig_cdf)
