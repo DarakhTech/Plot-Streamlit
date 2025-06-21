@@ -200,8 +200,19 @@ def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, 
     st.plotly_chart(fig, use_container_width=True)
 
 # -- App Layout --
-st.title("Probability Distribution Visualisation")
+# st.title("Probability Distribution Visualisation")
+st.markdown("""
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; ">
+            <h2 style="margin: 0;">Probability Distribution Visualisation</h2>
+            <div style="position: relative; display: inline-block; cursor:pointer;">
+                <span style="background-color:#007bff; color:white; border-radius:50%; padding:2px 7px; font-size:12px; font-weight:bold; cursor:pointer;" title="You can select one or two distributions from both continuous and discrete options. After clicking ENTER, the CDF and PMF/PDF of the chosen distributions will be displayed, with the Red line representing the first distribution and the Orange line representing the second.">
+                info
+                </span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
+# -- Main Layout --
 cols = st.columns([2, 8, 2])
 
 with cols[0]:
