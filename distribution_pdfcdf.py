@@ -172,7 +172,7 @@ def get_params(dist, prefix):
         p["mu"] = st.number_input("Mean (μ):", 5.0, key=f"{prefix}_mu")
     return p
 
-
+# -- Plotting Function ---
 def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, dist_type_1, dist_type_2, hide_dist2):
     fig = go.Figure()
 
@@ -200,9 +200,20 @@ def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, 
     st.plotly_chart(fig, use_container_width=True)
 
 # -- App Layout --
-st.title("Probability Distribution Visualisation")
+# st.title(f"Probability Distribution Visualisation")
+st.markdown("""
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px; ">
+            <h2 style="margin: 0;">Probability Distribution Visualisation</h2>
+            <div style="position: relative; display: inline-block; cursor:pointer;">
+                <span style="background-color:#007bff; color:white; border-radius:50%; padding:2px 7px; font-size:12px; font-weight:bold; cursor:pointer;" title="You can select one or two distributions from both continuous and discrete options. After clicking ENTER, the CDF and PMF/PDF of the chosen distributions will be displayed, with the Red line representing the first distribution and the Orange line representing the second.">
+                info
+                </span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
-cols = st.columns([2, 8, 2])
+# -- Main Layout --
+cols = st.columns([3, 6, 3])
 
 with cols[0]:
     st.subheader("Distribution 1")
@@ -225,8 +236,8 @@ with cols[1]:
     label2 = f"{dist2}"
 
     if dist_type_1 == "Continuous" and dist_type_2 == "Continuous" and mean1 is not None and std1 is not None and mean2 is not None and std2 is not None:
-        min_x = min(mean1 - 10 * std1, mean2 - 10 * std2)
-        max_x = max(mean1 + 10 * std1, mean2 + 10 * std2)
+        min_x = min(mean1 - 4 * std1, mean2 - 4 * std2)
+        max_x = max(mean1 + 4 * std1, mean2 + 4 * std2)
         x_common = np.linspace(min_x, max_x, 5000)
     else:
         xmin = min(np.min(x1), np.min(x2))
@@ -247,6 +258,7 @@ with cols[1]:
         x2_plot = x_common
 
     plot_distributions(x1_plot, pdf1_plot, x2_plot, pdf2_plot, label1, label2, "Value", "Density", "PDF/PMF Comparison", dist_type_1, dist_type_2, hide_params)
+
 
     # st.subheader("CDF of Distributions")
     if dist_type_1 == "Discrete":
