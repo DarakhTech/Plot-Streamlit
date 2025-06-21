@@ -4,10 +4,22 @@ import scipy.stats as stats
 import plotly.graph_objs as go
 
 # -- Page Config --
-st.set_page_config(page_title="Distributions", layout="wide")
+st.set_page_config(
+    page_title="Distributions", 
+    page_icon="📊",
+    layout="wide"
+)
 
 # -- Custom CSS for full-screen layout --
 st.markdown("""
+            
+<meta name="description" content="Visualize and compare probability distributions like Normal, Poisson, and more using interactive graphs. Built with Streamlit.">
+<meta property="og:title" content="Probability Distribution Visualisation">
+<meta property="og:description" content="Interactive app to compare PDF and CDF of various distributions.">
+<meta property="og:image" content="https://brand.umd.edu/assets/images/favicon.ico">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://simulations-distribution.streamlit.app">
+
 <style>
     html, body, [data-testid="stApp"] {
         height: 100vh;
