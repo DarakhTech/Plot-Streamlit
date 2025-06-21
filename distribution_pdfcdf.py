@@ -161,18 +161,19 @@ def get_params(dist, prefix):
     return p
 
 
-def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, dist_type_1, dist_type_2):
+def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, dist_type_1, dist_type_2, hide_dist2):
     fig = go.Figure()
 
     if isinstance(x1[0], (int, np.integer, float, np.floating)) and dist_type_1 == "Discrete":
-        fig.add_trace(go.Bar(x=x1, y=y1, name=label1, marker_color='salmon', width=0.1))
+        fig.add_trace(go.Bar(x=x1, y=y1, name=f"{label1} 1", marker_color='salmon', width=0.1))
     else:
-        fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines', name=label1, line=dict(color='red')))
+        fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines', name=f"{label1} 1", line=dict(color='red')))
 
-    if isinstance(x2[0], (int, np.integer, float, np.floating)) and dist_type_2 == "Discrete":
-        fig.add_trace(go.Bar(x=x2, y=y2, name=label2, marker_color='orange'))
-    else:
-        fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines', name=label2, line=dict(color='orange')))
+    if not hide_dist2:
+        if isinstance(x2[0], (int, np.integer, float, np.floating)) and dist_type_2 == "Discrete":
+            fig.add_trace(go.Bar(x=x2, y=y2, name=f"{label2} 2", marker_color='orange'))
+        else:
+            fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines', name=f"{label2} 2", line=dict(color='orange')))
 
     fig.update_layout(
         title=title,
@@ -202,6 +203,7 @@ with cols[2]:
     dist_type_2 = st.selectbox("Type of Distribution 2", ["Continuous", "Discrete"], key="type2")
     dist2 = st.selectbox("Choose Distribution to Display", continuous_dists if dist_type_2 == "Continuous" else discrete_dists, key="dist2")
     params2 = get_params(dist2, "p2")
+    hide_params = st.checkbox("Hide Distribution 2", value=False, key="hide_dist2")
 
 with cols[1]:
     x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type_1)
@@ -232,7 +234,7 @@ with cols[1]:
         pdf2_plot = np.interp(x_common, x2, pdf2)
         x2_plot = x_common
 
-    plot_distributions(x1_plot, pdf1_plot, x2_plot, pdf2_plot, label1, label2, "Value", "Density", "PDF/PMF Comparison", dist_type_1, dist_type_2)
+    plot_distributions(x1_plot, pdf1_plot, x2_plot, pdf2_plot, label1, label2, "Value", "Density", "PDF/PMF Comparison", dist_type_1, dist_type_2, hide_params)
 
     # st.subheader("CDF of Distributions")
     if dist_type_1 == "Discrete":
@@ -248,4 +250,4 @@ with cols[1]:
         cdf2_plot = np.interp(x_common, x2, cdf2)
         x2_cdf = x_common
 
-    plot_distributions(x1_cdf, cdf1_plot, x2_cdf, cdf2_plot, label1, label2, "Value", "Cumulative Probability", "CDF Comparison", dist_type_1, dist_type_2)
+    plot_distributions(x1_cdf, cdf1_plot, x2_cdf, cdf2_plot, label1, label2, "Value", "Cumulative Probability", "CDF Comparison", dist_type_1, dist_type_2, hide_params)
