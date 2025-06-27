@@ -212,7 +212,7 @@ def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, 
             fig.add_trace(go.Scatter(x=[mean1], y=[y1[closest_idx]],
                                     mode='markers',
                                     marker=dict(color="red", size=8),
-                                    showlegend=False))
+                                    showlegend=False, name=f"E[X]: {label1}"))
     # Add mean line for Distribution 2
     if not is_cdf and dist_type_2 == "Continuous" and mean2 is not None and not hide_dist2:
         if isinstance(x2, np.ndarray) and isinstance(y2, np.ndarray):
@@ -227,7 +227,7 @@ def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, 
             fig.add_trace(go.Scatter(x=[mean2], y=[y2[closest_idx]],
                                     mode='markers',
                                     marker=dict(color="orange", size=8),
-                                    showlegend=False))
+                                    showlegend=False,  name=f"E[X]: {label2}"))
 
 
     fig.update_layout(
@@ -236,12 +236,13 @@ def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, 
         yaxis_title=y_label,
         template='simple_white',
         xaxis=dict(
-            dtick=1,
-            showgrid=True,
-            # rangeslider=dict(visible=True),
-            type='linear'),
+            showgrid=False,
+            rangeslider=dict(visible=show_slider),
+            type='linear',
+            automargin=True
+        ),
         yaxis=dict(showgrid=True),
-        hovermode='closest'
+        hovermode='closest',
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -274,6 +275,8 @@ with cols[2]:
     dist2 = st.selectbox("Choose Distribution to Display", continuous_dists if dist_type_2 == "Continuous" else discrete_dists, key="dist2")
     params2 = get_params(dist2, "p2")
     hide_params = st.checkbox("Hide Distribution 2", value=False, key="hide_dist2")
+    show_slider = st.checkbox("Show range slider", value=False, key="show_slider")
+
 
 with cols[1]:
     x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type_1)
