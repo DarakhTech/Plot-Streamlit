@@ -1,2 +1,3 @@
 /webpage_structure
 .DS_Store
+pages/__pycache__/

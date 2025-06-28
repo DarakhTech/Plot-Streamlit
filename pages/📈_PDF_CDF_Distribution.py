@@ -33,10 +33,9 @@ st.markdown("""
         padding-right: 2rem;
     }
 
-    /* Removed sidebar hiding to allow toggling with hamburger icon */
-    /* section[data-testid="stSidebar"] {
-        display: none;
-    } */
+    # section[data-testid="stSidebar"] {
+    #     display: none;
+    # }
 
     .block-container {
         padding-top: 1rem;
