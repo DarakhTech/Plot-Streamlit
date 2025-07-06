@@ -4,6 +4,5 @@ st.set_page_config(
     page_title="Multipage App",
     page_icon="👋",
 )
-
-st.title("Main Page")
-
+# Logo
+st.sidebar.image("https://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png", use_container_width=True)
