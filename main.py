@@ -14,7 +14,7 @@ st.markdown(hide_sidebar, unsafe_allow_html=True)
 
 # Build Custom Sidebar
 with st.sidebar:
-    st.image("https://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png", use_container_width=True)
+    # st.image("https://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png", use_container_width=True)
     st.header("Navigation")
 
     st.page_link("main.py", label="Home")
@@ -148,6 +148,29 @@ html, body, [data-testid="stAppViewContainer"], .main {
     width: 100%;
     padding: 8px;
 }
+    .uniform-image img {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        object-fit: cover;
+        width: 100%;
+        height: 200px;
+    }
+    .link-label {
+        text-align: center;
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    /* All images inside stImage elements */
+    [data-testid="stImage"] img {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        object-fit: cover;
+        width: 100%;
+        height: 200px;
+    }
+    
 
 
 </style>
@@ -175,21 +198,36 @@ st.markdown('<div class="main-title">Simulations</div>', unsafe_allow_html=True)
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.image("assets/image1.png")
-    st.page_link("pages/law_of_larger_numbers.py", label="Law of Large Numbers")
+    st.markdown("""
+        <a href="/law_of_larger_numbers" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/trial_true.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Law of Large Numbers</div>
+        </a>
+    """, unsafe_allow_html=True)
 
 with col2:
-    st.image("assets/image2.png")
-    st.page_link("pages/pdf_cdf_distribution.py", label="Density and Cumulative Distribution")
+    st.markdown("""
+        <a href="/pdf_cdf_distribution" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/Distribution.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Density and Cumulative Distribution</div>
+        </a>
+    """, unsafe_allow_html=True)
 
 with col3:
-    st.image("assets/image3.png")
-    st.page_link("pages/calculating_prob_std_distribution.py", label="Calculating Probabilities")
+    st.markdown("""
+        <a href="/calculating_prob_std_distribution" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/Distribution_with_slider.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Calculating Probabilities</div>
+        </a>
+    """, unsafe_allow_html=True)
 
 with col4:
-    st.image("assets/image4.png")
-    st.page_link("pages/sampling_dist_cmn_stats.py", label="Sampling Distribution")
-    
+    st.markdown("""
+        <a href="/sampling_dist_cmn_stats" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/statistic_webpage.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Sampling Distribution</div>
+        </a>
+    """, unsafe_allow_html=True)
 
 # End Main Box
 st.markdown('</div>', unsafe_allow_html=True)
