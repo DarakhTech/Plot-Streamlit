@@ -84,15 +84,15 @@ st.markdown('<div class="main-title">Introduction to Probability and Statistics<
 st.markdown("""
 <div class="topic-box">
     <ol>
-        <li><a href="https://yourdomain.com/descriptive_statistics" target="_blank">Descriptive Statistics</a></li>
-        <li><a href="https://yourdomain.com/probability" target="_blank">Probability</a></li>
-        <li><a href="https://yourdomain.com/random_variables" target="_blank">Random Variables</a></li>
-        <li><a href="https://yourdomain.com/discrete_random_variables" target="_blank">Discrete Random Variables</a></li>
-        <li><a href="https://yourdomain.com/continuous_random_variables" target="_blank">Continuous Random Variables</a></li>
-        <li><a href="https://yourdomain.com/joint_distributions" target="_blank">Joint Distributions</a></li>
-        <li><a href="https://yourdomain.com/random_samples" target="_blank">Random Samples and Statistics</a></li>
-        <li><a href="https://yourdomain.com/point_estimators" target="_blank">Point Estimators</a></li>
-        <li><a href="https://yourdomain.com/inference_statistics" target="_blank">Inference Statistic</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%201/Chapter_1_Notes/Chapter1.pdf#Probability" target="_blank">Descriptive Statistics</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%202/Chapter_2_Notes/Chapter2.pdf#Probability" target="_blank">Probability</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%203/Chapter_3_Notes/Chapter3.pdf#Random%20Variables" target="_blank">Random Variables</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%204/Chapter_4_Notes/Chapter4.pdf#page=2" target="_blank">Discrete Random Variables</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%205/Chapter_5_Notes/Chapter5.pdf#page=2" target="_blank">Continuous Random Variables</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%206/Chapter_6_Notes/Chapter6.pdf#page=2" target="_blank">Joint Distributions</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%207/Chapter_7_Notes/Chapter7.pdf#page=2" target="_blank">Random Samples and Statistics</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Stat400_Concepts.pdf#Point%20Estimators" target="_blank">Point Estimators</a></li>
+        <li><a href="https://math.umd.edu/~jon712/STAT400/asset/Chapter%209/Chapter_9_Notes/Chapter9.pdf#Inference%20Statistic" target="_blank">Inference Statistic</a></li>
     </ol>
 </div>
 """, unsafe_allow_html=True)
