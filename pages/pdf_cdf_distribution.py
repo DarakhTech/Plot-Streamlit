@@ -3,6 +3,12 @@ import numpy as np
 import scipy.stats as stats
 import plotly.graph_objs as go
 
+# -- Page Config --
+st.set_page_config(
+    page_title="Distributions", 
+    page_icon="📊",
+    layout="wide"
+)
 
 # --- NAV BAR ELEMENT ---
 hide_sidebar = """
@@ -30,13 +36,6 @@ with st.sidebar:
     st.page_link("https://www.youtube.com/playlist?list=PL90IJGPVcgidgadbkRBzMbsjeGRcDxPXR", label="Videos")
     st.page_link("https://math.umd.edu/~jon712/index.html", label="About")
 # --- NAV BAR ELEMENT ---
-
-# -- Page Config --
-st.set_page_config(
-    page_title="Distributions", 
-    page_icon="📊",
-    layout="wide"
-)
 
 # -- Custom CSS for full-screen layout --
 st.markdown("""
