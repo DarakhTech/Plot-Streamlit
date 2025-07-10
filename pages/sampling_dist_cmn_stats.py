@@ -96,14 +96,14 @@ with st.container():
     with col_plot:
         def compute_stat(x, stat):
             return {
-                "min": np.min,
-                "max": np.max,
-                "mean": np.mean,
-                "median": np.median,
-                "sd": lambda x: np.std(x, axis=1, ddof=1),
-                "var": lambda x: np.var(x, axis=1, ddof=1),
-                "sum": np.sum
-            }.get(stat, lambda x: x)(x, axis=1)
+                "min": lambda x, **kwargs: np.min(x, **kwargs),
+                "max": lambda x, **kwargs: np.max(x, **kwargs),
+                "mean": lambda x, **kwargs: np.mean(x, **kwargs),
+                "median": lambda x, **kwargs: np.median(x, **kwargs),
+                "sd": lambda x, **kwargs: np.std(x, ddof=1, **kwargs),
+                "var": lambda x, **kwargs: np.var(x, ddof=1, **kwargs),
+                "sum": lambda x, **kwargs: np.sum(x, **kwargs)
+            }.get(stat, lambda x, **kwargs: x)(x, axis=1)
 
         def get_true_mean_sd(dist_type):
             try:
