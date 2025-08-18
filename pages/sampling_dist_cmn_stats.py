@@ -145,8 +145,8 @@ with st.container():
             except:
                 return np.nan, np.nan
 
-        def calculate_bins(sample_size):
-            return max(10, int(60 / np.log2(sample_size + 1)))
+        def calculate_bins(size):
+            return  round(np.sqrt(size)/4)  #int(60 / np.log2(sample_size + 1))
 
         if submit:
             sizes = [n1, n2, n3, n4]
@@ -157,37 +157,37 @@ with st.container():
                 samples = None
 
                 if dist_type == "Normal":
-                    samples = np.random.normal(loc=mean, scale=std_dev, size=(10000, size))
+                    samples = np.random.normal(loc=mean, scale=std_dev, size=(30000, size))
                 elif dist_type == "Uniform Continuous":
-                    samples = np.random.uniform(low=a, high=b, size=(10000, size))
+                    samples = np.random.uniform(low=a, high=b, size=(30000, size))
                 elif dist_type == "Gamma":
-                    samples = np.random.gamma(shape=shape, scale=eval(scale), size=(10000, size))
+                    samples = np.random.gamma(shape=shape, scale=eval(scale), size=(30000, size))
                 elif dist_type == "Exponential":
-                    samples = np.random.exponential(scale=1/rate, size=(10000, size))
+                    samples = np.random.exponential(scale=1/rate, size=(30000, size))
                 elif dist_type == "Pareto":
-                    samples = (np.random.pareto(a=shape, size=(10000, size)) + 1) * location
+                    samples = (np.random.pareto(a=shape, size=(30000, size)) + 1) * location
                 elif dist_type == "Beta Distribution":
-                    samples = np.random.beta(a=alpha, b=beta_param, size=(10000, size))
+                    samples = np.random.beta(a=alpha, b=beta_param, size=(30000, size))
                 elif dist_type == "Bernoulli":
-                    samples = np.random.binomial(n=1, p=p, size=(10000, size))
+                    samples = np.random.binomial(n=1, p=p, size=(30000, size))
                 elif dist_type == "Binomial":
-                    samples = np.random.binomial(n=int(n_binom), p=p, size=(10000, size))
+                    samples = np.random.binomial(n=int(n_binom), p=p, size=(30000, size))
                 elif dist_type == "Uniform Discrete":
-                    samples = np.random.randint(low=int(a), high=int(b)+1, size=(10000, size))
+                    samples = np.random.randint(low=int(a), high=int(b)+1, size=(30000, size))
                 elif dist_type == "Geometric":
-                    samples = np.random.geometric(p=p, size=(10000, size))
+                    samples = np.random.geometric(p=p, size=(30000, size))
                 elif dist_type == "Negative Binomial":
-                    samples = np.random.negative_binomial(n=int(r), p=p, size=(10000, size))
+                    samples = np.random.negative_binomial(n=int(r), p=p, size=(30000, size))
                 elif dist_type == "Hypergeometric":
-                    samples = np.random.hypergeometric(ngood=K, nbad=N-K, nsample=n, size=(10000, size))
+                    samples = np.random.hypergeometric(ngood=K, nbad=N-K, nsample=n, size=(30000, size))
                 elif dist_type == "Poisson":
-                    samples = np.random.poisson(lam=lam, size=(10000, size))
+                    samples = np.random.poisson(lam=lam, size=(30000, size))
 
                 if samples is None:
                     st.error("Invalid distribution parameters.")
                     continue
 
-                bins = calculate_bins(size)
+                bins = calculate_bins(30000)
                 stats = compute_stat(samples, stat)
                 hist_y, hist_x = np.histogram(stats, bins=bins, density=True)
                 hist_x_centers = 0.5 * (hist_x[1:] + hist_x[:-1])
