@@ -1,175 +1,234 @@
 import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.stats import (
-    norm, binom, bernoulli, poisson, geom, nbinom, hypergeom,
-    gamma, expon, pareto, beta, uniform
-)
 
-st.set_page_config(layout="wide")
-st.title("📊 Distributions")
+st.set_page_config(page_title="UMD Simulations", layout="wide")
 
-# Layout in columns
-col1, col2 = st.columns([1, 1])
+# --- NAV BAR ELEMENT ---
+hide_sidebar = """
+<style>
+[data-testid="stSidebarNav"] {
+    display: none;
+}
+</style>
+"""
+st.markdown(hide_sidebar, unsafe_allow_html=True)
+
+# Build Custom Sidebar
+with st.sidebar:
+    # st.image("https://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png", use_container_width=True)
+    st.header("Navigation")
+
+    st.page_link("main.py", label="Home")
+    st.page_link("pages/table_of_contents.py", label="Table of Contents")
+    with st.expander("Simulations", expanded=True):
+        st.page_link("pages/pdf_cdf_distribution.py", label="PDF CDF Distribution")
+        st.page_link("pages/law_of_larger_numbers.py", label="Law of Large_Number")
+        st.page_link("pages/calculating_prob_std_distribution.py", label="Calculating Probabilities for standard Distribution")
+        st.page_link("pages/sampling_dist_cmn_stats.py", label="Sampling Distribution")
+    
+    st.page_link("https://www.youtube.com/playlist?list=PL90IJGPVcgidgadbkRBzMbsjeGRcDxPXR", label="Videos")
+    st.page_link("https://math.umd.edu/~jon712/index.html", label="About")
+# --- NAV BAR ELEMENT ---
+
+# --- CSS Styling ---
+
+st.markdown("""
+<style>
+/* Reset & page background */
+html, body, [data-testid="stAppViewContainer"], .main {
+    background: #e21833;
+    color: black;
+}
+
+/* HEADER BAR */
+.umd-header {
+    background-color: #e31c3d;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    padding: 15px 0;
+    width: 100%;
+    position: absolute;
+    # margin-top: -40px;
+}
+
+/* NAVBAR SECTION */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 40px;
+    margin-top: 70px;
+    background-color: #f5f5f5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* LOGO IMAGE */
+.navbar img {
+    height: 60px;
+}
+
+/* NAV LINKS */
+.nav-links {
+    display: flex;
+    gap: 40px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.nav-links a {
+    color: #a60000;
+    text-decoration: none;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+            
+
+}
+            
+             @media (max-width: 768px) {
+            .nav-links {
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+        }
+
+/* Title styling */
+.main-title {
+    text-align: center;
+            color: white;
+    font-size: 3em;
+    font-weight: bold;
+    margin-top: 50px;       
+}
+
+            .tile-row {
+    display: flex;
+    flex-wrap: wrap; /* Wrap on smaller screens */
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.img-box {
+    position: relative;
+    background-color: white;
+    border-radius: 10px;
+    padding: 0;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    text-align: center;
+    overflow: hidden;
+    width: 320px;
+    height: 240px;
+}
+
+.img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+    aspect-ratio: 4/3;
+}
+
+.img-box .stButton {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+}
+
+.stButton > button {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    border-radius: 8px;
+    width: 100%;
+    padding: 8px;
+}
+    .uniform-image img {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        object-fit: cover;
+        width: 100%;
+        height: 200px;
+    }
+    .link-label {
+        text-align: center;
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    /* All images inside stImage elements */
+    [data-testid="stImage"] img {
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        object-fit: cover;
+        width: 100%;
+        height: 200px;
+    }
+    
+
+
+</style>
+""", unsafe_allow_html=True)
+
+# --- Header and Nav ---
+st.markdown('<div class="umd-header">UNIVERSITY OF MARYLAND</div>', unsafe_allow_html=True)
+
+st.markdown("""
+<div class="navbar">
+    <img src="http://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png" alt="UMD Math Logo">
+    <div class="nav-links">
+        <a href="https://math.umd.edu/~jon712/index.html">Home</a>
+        <a href="#">Table of Contents</a>
+        <a href="https://www.youtube.com/playlist?list=PL90IJGPVcgidgadbkRBzMbsjeGRcDxPXR">Videos</a>
+        <a href="https://math.umd.edu/~jon712/index.html">About</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# --- Page Title ---
+st.markdown('<div class="main-title">Simulations</div>', unsafe_allow_html=True)
+
+# 4 Image Columns
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    dist_type = st.selectbox("Type of Distribution", ["Continuous", "Discrete"])
-
-    if dist_type == "Continuous":
-        cont_options = ["Uniform Continuous", "Normal", "Gamma", "Exponential", "Pareto", "Beta Distribution"]
-        dist_choice = st.selectbox("Distribution Want to Display", cont_options)
-        mean = st.number_input("Mean", value=0.0)
-        std = st.number_input("Standard Deviation", value=1.0)
-        second_dist = st.checkbox("Second Distribution", value=False)
-
-        if second_dist:
-            second_dist_choice = st.selectbox("Second Distribution", cont_options)
-            mean2 = st.number_input("Mean (2nd)", value=1.0, key="mean2")
-            std2 = st.number_input("Std Dev (2nd)", value=1.0, key="std2")
-
-    elif dist_type == "Discrete":
-        disc_options = ["Bernoulli", "Binomial", "Hypergeometric", "Geometric", "Negative Binomial", "Poisson"]
-        dist_choice = st.selectbox("Distribution Want to Display", disc_options)
-        p = st.number_input("p", min_value=0.0, max_value=1.0, value=0.5)
-        n = st.number_input("n", min_value=1, value=10)
-        second_dist = st.checkbox("Second Distribution", value=False)
-
-        if second_dist:
-            second_dist_choice = st.selectbox("Second Distribution", disc_options)
-            p2 = st.number_input("p (2nd)", min_value=0.0, max_value=1.0, value=0.5, key="p2")
-            n2 = st.number_input("n (2nd)", min_value=1, value=10, key="n2")
-
-    submit = st.button("Submit")
+    st.markdown("""
+        <a href="/law_of_larger_numbers" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/trial_true.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Law of Large Numbers</div>
+        </a>
+    """, unsafe_allow_html=True)
 
 with col2:
-    if submit:
-        x = np.linspace(-5, 15, 1000)
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6))
+    st.markdown("""
+        <a href="/pdf_cdf_distribution" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/Distribution.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Density and Cumulative Distribution</div>
+        </a>
+    """, unsafe_allow_html=True)
 
-        if dist_type == "Continuous":
-            if dist_choice == "Normal":
-                y = norm.pdf(x, loc=mean, scale=std)
-                cdf = norm.cdf(x, loc=mean, scale=std)
-                label = "Normal"
-            elif dist_choice == "Uniform Continuous":
-                y = uniform.pdf(x, loc=mean - std, scale=2 * std)
-                cdf = uniform.cdf(x, loc=mean - std, scale=2 * std)
-                label = "Uniform"
-            elif dist_choice == "Gamma":
-                y = gamma.pdf(x, a=2)
-                cdf = gamma.cdf(x, a=2)
-                label = "Gamma"
-            elif dist_choice == "Exponential":
-                y = expon.pdf(x)
-                cdf = expon.cdf(x)
-                label = "Exponential"
-            elif dist_choice == "Pareto":
-                y = pareto.pdf(x, b=2)
-                cdf = pareto.cdf(x, b=2)
-                label = "Pareto"
-            elif dist_choice == "Beta Distribution":
-                x = np.linspace(0, 1, 1000)
-                y = beta.pdf(x, a=2, b=5)
-                cdf = beta.cdf(x, a=2, b=5)
-                label = "Beta"
+with col3:
+    st.markdown("""
+        <a href="/calculating_prob_std_distribution" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/Distribution_with_slider.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Calculating Probabilities</div>
+        </a>
+    """, unsafe_allow_html=True)
 
-            ax1.plot(x, y, label=label.lower(), color="red")
-            ax2.plot(x, cdf, label=label.lower(), color="blue")
+with col4:
+    st.markdown("""
+        <a href="/sampling_dist_cmn_stats" target="_self">
+            <img src="https://math.umd.edu/~jon712/STAT400/asset/statistic_webpage.png" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" />
+            <div style="text-align: center; font-weight: bold; margin-top: 8px; color: white;">Sampling Distribution</div>
+        </a>
+    """, unsafe_allow_html=True)
 
-            if second_dist:
-                if second_dist_choice == "Normal":
-                    y2 = norm.pdf(x, loc=mean2, scale=std2)
-                    cdf2 = norm.cdf(x, loc=mean2, scale=std2)
-                    label2 = "Normal (2nd)"
-                elif second_dist_choice == "Uniform Continuous":
-                    y2 = uniform.pdf(x, loc=mean2 - std2, scale=2 * std2)
-                    cdf2 = uniform.cdf(x, loc=mean2 - std2, scale=2 * std2)
-                    label2 = "Uniform (2nd)"
-                elif second_dist_choice == "Gamma":
-                    y2 = gamma.pdf(x, a=2)
-                    cdf2 = gamma.cdf(x, a=2)
-                    label2 = "Gamma (2nd)"
-                elif second_dist_choice == "Exponential":
-                    y2 = expon.pdf(x)
-                    cdf2 = expon.cdf(x)
-                    label2 = "Exponential (2nd)"
-                elif second_dist_choice == "Pareto":
-                    y2 = pareto.pdf(x, b=2)
-                    cdf2 = pareto.cdf(x, b=2)
-                    label2 = "Pareto (2nd)"
-                elif second_dist_choice == "Beta Distribution":
-                    x2 = np.linspace(0, 1, 1000)
-                    y2 = beta.pdf(x2, a=2, b=5)
-                    cdf2 = beta.cdf(x2, a=2, b=5)
-                    ax1.plot(x2, y2, label="beta (2nd)", linestyle="--")
-                    ax2.plot(x2, cdf2, label="beta (2nd)", linestyle="--")
-                    label2 = None
+# End Main Box
+st.markdown('</div>', unsafe_allow_html=True)
 
-                if label2:
-                    ax1.plot(x, y2, label=label2.lower(), linestyle="--")
-                    ax2.plot(x, cdf2, label=label2.lower(), linestyle="--")
-
-        elif dist_type == "Discrete":
-            k = np.arange(0, n + 1)
-            if dist_choice == "Binomial":
-                y = binom.pmf(k, n, p)
-                cdf = binom.cdf(k, n, p)
-            elif dist_choice == "Bernoulli":
-                k = [0, 1]
-                y = bernoulli.pmf(k, p)
-                cdf = bernoulli.cdf(k, p)
-            elif dist_choice == "Poisson":
-                k = np.arange(0, n + 1)
-                y = poisson.pmf(k, mu=n*p)
-                cdf = poisson.cdf(k, mu=n*p)
-            elif dist_choice == "Geometric":
-                y = geom.pmf(k, p)
-                cdf = geom.cdf(k, p)
-            elif dist_choice == "Negative Binomial":
-                y = nbinom.pmf(k, n, p)
-                cdf = nbinom.cdf(k, n, p)
-            elif dist_choice == "Hypergeometric":
-                M = 20
-                N = 7
-                y = hypergeom.pmf(k, M, N, n)
-                cdf = hypergeom.cdf(k, M, N, n)
-
-            ax1.bar(k, y, alpha=0.6, color="orange", label=dist_choice.lower())
-            ax2.plot(k, cdf, "ro-", label=dist_choice.lower())
-
-            if second_dist:
-                k2 = np.arange(0, n2 + 1)
-                if second_dist_choice == "Binomial":
-                    y2 = binom.pmf(k2, n2, p2)
-                    cdf2 = binom.cdf(k2, n2, p2)
-                elif second_dist_choice == "Bernoulli":
-                    k2 = [0, 1]
-                    y2 = bernoulli.pmf(k2, p2)
-                    cdf2 = bernoulli.cdf(k2, p2)
-                elif second_dist_choice == "Poisson":
-                    y2 = poisson.pmf(k2, mu=n2 * p2)
-                    cdf2 = poisson.cdf(k2, mu=n2 * p2)
-                elif second_dist_choice == "Geometric":
-                    y2 = geom.pmf(k2, p2)
-                    cdf2 = geom.cdf(k2, p2)
-                elif second_dist_choice == "Negative Binomial":
-                    y2 = nbinom.pmf(k2, n2, p2)
-                    cdf2 = nbinom.cdf(k2, n2, p2)
-                elif second_dist_choice == "Hypergeometric":
-                    M = 20
-                    N = 7
-                    y2 = hypergeom.pmf(k2, M, N, n2)
-                    cdf2 = hypergeom.cdf(k2, M, N, n2)
-
-                ax1.bar(k2, y2, alpha=0.3, label=second_dist_choice.lower() + " (2nd)")
-                ax2.plot(k2, cdf2, "go--", label=second_dist_choice.lower() + " (2nd)")
-
-        ax1.set_title("PDF/PMF of Distributions", fontsize=13)
-        ax2.set_title("CDF of Distributions", fontsize=13)
-        ax1.set_xlabel("Value")
-        ax2.set_xlabel("Value")
-        ax1.set_ylabel("Density")
-        ax2.set_ylabel("Cumulative")
-        ax1.legend()
-        ax2.legend()
-        st.pyplot(fig)

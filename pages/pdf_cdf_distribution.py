@@ -10,6 +10,33 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- NAV BAR ELEMENT ---
+hide_sidebar = """
+<style>
+[data-testid="stSidebarNav"] {
+    display: none;
+}
+</style>
+"""
+st.markdown(hide_sidebar, unsafe_allow_html=True)
+
+# Build Custom Sidebar
+with st.sidebar:
+    st.image("https://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png", use_container_width=True)
+    st.header("Navigation")
+
+    st.page_link("main.py", label="Home")
+    st.page_link("pages/table_of_contents.py", label="Table of Contents")
+    with st.expander("Simulations", expanded=True):
+        st.page_link("pages/pdf_cdf_distribution.py", label="PDF CDF Distribution")
+        st.page_link("pages/law_of_larger_numbers.py", label="Law of Large_Number")
+        st.page_link("pages/calculating_prob_std_distribution.py", label="Calculating Probabilities for standard Distribution")
+        st.page_link("pages/sampling_dist_cmn_stats.py", label="Sampling Distribution")
+    
+    st.page_link("https://www.youtube.com/playlist?list=PL90IJGPVcgidgadbkRBzMbsjeGRcDxPXR", label="Videos")
+    st.page_link("https://math.umd.edu/~jon712/index.html", label="About")
+# --- NAV BAR ELEMENT ---
+
 # -- Custom CSS for full-screen layout --
 st.markdown("""
             
@@ -33,9 +60,9 @@ st.markdown("""
         padding-right: 2rem;
     }
 
-    section[data-testid="stSidebar"] {
-        display: none;
-    }
+    # section[data-testid="stSidebar"] {
+    #     display: none;
+    # }
 
     .block-container {
         padding-top: 1rem;
@@ -86,12 +113,13 @@ def get_distribution_data(dist_name, params, dist_type):
             cdf = stats.expon.cdf(x, scale=scale)
             mean = std = scale
         elif dist_name == "Pareto":
-            b = params["b"]
-            x = np.linspace(stats.pareto.ppf(0.01, b), stats.pareto.ppf(0.99, b), 2000)
-            pdf = stats.pareto.pdf(x, b)
-            cdf = stats.pareto.cdf(x, b)
-            mean = b / (b - 1) if b > 1 else None
-            std = np.sqrt(b / ((b - 1)**2 * (b - 2))) if b > 2 else None
+            alpha = params["alpha"]
+            beta = params["beta"]
+            x = np.linspace(beta, beta * 10, 2000)
+            pdf = stats.pareto.pdf(x, b=alpha, scale=beta)
+            cdf = stats.pareto.cdf(x, b=alpha, scale=beta)
+            mean = (alpha * beta) / (alpha - 1) if alpha > 1 else None
+            std = np.sqrt((alpha * beta**2) / ((alpha - 1)**2 * (alpha - 2))) if alpha > 2 else None
         elif dist_name == "Beta Distribution":
             a, b = params["a"], params["b"]
             x = np.linspace(0, 1, 2000)
@@ -151,50 +179,97 @@ def get_params(dist, prefix):
         p["mu"] = st.number_input("Mean (μ):", 0.0, key=f"{prefix}_mu")
         p["sigma"] = st.number_input("Std Dev (σ):", value=1.0, min_value=0.01, key=f"{prefix}_sd")
     elif dist == "Uniform Continuous" or dist == "Uniform":
-        p["a"] = st.number_input("a (Lower):", 0.0, key=f"{prefix}_a")
-        p["b"] = st.number_input("b (Upper):", 10.0, key=f"{prefix}_b")
+        p["a"] = st.number_input("a (Lower):", 1.0, step=1.0, key=f"{prefix}_a")
+        p["b"] = st.number_input("b (Upper):", 2.0, step=1.0, key=f"{prefix}_b")
     elif dist == "Gamma":
         p["shape"] = st.number_input("Shape (α):", 2.0, key=f"{prefix}_alpha")
         p["scale"] = st.number_input("Scale (θ):", 1.0, key=f"{prefix}_scale")
     elif dist == "Exponential":
         p["rate"] = st.number_input("Rate (λ):", 1.0, key=f"{prefix}_rate")
     elif dist == "Pareto":
-        p["b"] = st.number_input("Shape (b):", 2.0, key=f"{prefix}_b")
+        p["alpha"] = st.number_input("Alpha (α):", value=2.0, min_value=0.01, step=1.0, key=f"{prefix}_alpha")
+        p["beta"] = st.number_input("Beta (β):", value=1.0, min_value=0.01, step=1.0, key=f"{prefix}_beta")
     elif dist == "Beta Distribution":
         p["a"] = st.number_input("Alpha (a):", 2.0, key=f"{prefix}_a")
         p["b"] = st.number_input("Beta (b):", 5.0, key=f"{prefix}_b")
     elif dist in ["Bernoulli", "Geometric"]:
-        p["p"] = st.number_input("p", min_value=0.0, max_value=1.0, value=0.5, key=f"{prefix}_p")
+        p["p"] = st.number_input("p", min_value=0.0, max_value=1.0, value=0.5, step=0.01, key=f"{prefix}_p")
     elif dist == "Binomial" or dist == "Negative Binomial":
         p["n"] = st.number_input("n (Trials):", 10, step=1, key=f"{prefix}_n")
-        p["p"] = st.number_input("p", min_value=0.0, max_value=1.0, value=0.5, key=f"{prefix}_p")
+        p["p"] = st.number_input("p", min_value=0.0, max_value=1.0, value=0.5, step=0.01, key=f"{prefix}_p")
     elif dist == "Poisson":
         p["mu"] = st.number_input("Mean (μ):", 5.0, key=f"{prefix}_mu")
     return p
 
 
-def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, dist_type_1, dist_type_2, hide_dist2):
+# For CDF Comparison
+def plot_distributions(x1, y1, x2, y2, label1, label2, x_label, y_label, title, dist_type_1, dist_type_2, hide_dist2, is_cdf=False, mean1=None, mean2=None):
     fig = go.Figure()
 
-    if isinstance(x1[0], (int, np.integer, float, np.floating)) and dist_type_1 == "Discrete":
+    # Distribution 1
+    if dist_type_1 == "Discrete" and is_cdf:
+        fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines+markers', name=f"{label1} 1", 
+                                 line=dict(color='red', shape='hv'), marker=dict(symbol='circle', color='red')))
+    elif dist_type_1 == "Discrete":
         fig.add_trace(go.Bar(x=x1, y=y1, name=f"{label1} 1", marker_color='salmon', width=0.1))
     else:
         fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines', name=f"{label1} 1", line=dict(color='red')))
 
+    # Distribution 2
     if not hide_dist2:
-        if isinstance(x2[0], (int, np.integer, float, np.floating)) and dist_type_2 == "Discrete":
+        if dist_type_2 == "Discrete" and is_cdf:
+            fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines+markers', name=f"{label2} 2", 
+                                     line=dict(color='blue', shape='hv'), marker=dict(symbol='circle', color='blue')))
+        elif dist_type_2 == "Discrete":
             fig.add_trace(go.Bar(x=x2, y=y2, name=f"{label2} 2", marker_color='orange'))
         else:
             fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines', name=f"{label2} 2", line=dict(color='orange')))
+
+    # Add mean line for Distribution 1
+    if not is_cdf and dist_type_1 == "Continuous" and mean1 is not None:
+        if isinstance(x1, np.ndarray) and isinstance(y1, np.ndarray):
+            closest_idx = (np.abs(x1 - mean1)).argmin()
+            fig.add_shape(
+                type="line",
+                x0=mean1, y0=0,
+                x1=mean1, y1=y1[closest_idx],
+                line=dict(color="red", width=4, dash="dot"),
+                name="Mean Line"
+            )
+            fig.add_trace(go.Scatter(x=[mean1], y=[y1[closest_idx]],
+                                    mode='markers',
+                                    marker=dict(color="red", size=8),
+                                    showlegend=False, name=f"E[X]: {label1}"))
+    # Add mean line for Distribution 2
+    if not is_cdf and dist_type_2 == "Continuous" and mean2 is not None and not hide_dist2:
+        if isinstance(x2, np.ndarray) and isinstance(y2, np.ndarray):
+            closest_idx = (np.abs(x2 - mean2)).argmin()
+            fig.add_shape(
+                type="line",
+                x0=mean2, y0=0,
+                x1=mean2, y1=y2[closest_idx],
+                line=dict(color="orange", width=4, dash="dot"),
+                name="Mean Line"
+            )
+            fig.add_trace(go.Scatter(x=[mean2], y=[y2[closest_idx]],
+                                    mode='markers',
+                                    marker=dict(color="orange", size=8),
+                                    showlegend=False,  name=f"E[X]: {label2}"))
+
 
     fig.update_layout(
         title=title,
         xaxis_title=x_label,
         yaxis_title=y_label,
         template='simple_white',
-        xaxis=dict(rangeslider=dict(visible=True), type='linear'),
+        xaxis=dict(
+            showgrid=False,
+            rangeslider=dict(visible=show_slider),
+            type='linear',
+            automargin=True
+        ),
         yaxis=dict(showgrid=True),
-        hovermode='closest'
+        hovermode='closest',
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -227,6 +302,8 @@ with cols[2]:
     dist2 = st.selectbox("Choose Distribution to Display", continuous_dists if dist_type_2 == "Continuous" else discrete_dists, key="dist2")
     params2 = get_params(dist2, "p2")
     hide_params = st.checkbox("Hide Distribution 2", value=False, key="hide_dist2")
+    show_slider = st.checkbox("Show range slider", value=False, key="show_slider")
+
 
 with cols[1]:
     x1, pdf1, cdf1, mean1, std1 = get_distribution_data(dist1, params1, dist_type_1)
@@ -236,8 +313,8 @@ with cols[1]:
     label2 = f"{dist2}"
 
     if dist_type_1 == "Continuous" and dist_type_2 == "Continuous" and mean1 is not None and std1 is not None and mean2 is not None and std2 is not None:
-        min_x = min(mean1 - 10 * std1, mean2 - 10 * std2)
-        max_x = max(mean1 + 10 * std1, mean2 + 10 * std2)
+        min_x = min(mean1 - 4 * std1, mean2 - 4 * std2)
+        max_x = max(mean1 + 4 * std1, mean2 + 4 * std2)
         x_common = np.linspace(min_x, max_x, 5000)
     else:
         xmin = min(np.min(x1), np.min(x2))
@@ -257,7 +334,7 @@ with cols[1]:
         pdf2_plot = np.interp(x_common, x2, pdf2)
         x2_plot = x_common
 
-    plot_distributions(x1_plot, pdf1_plot, x2_plot, pdf2_plot, label1, label2, "Value", "Density", "PDF/PMF Comparison", dist_type_1, dist_type_2, hide_params)
+    plot_distributions(x1_plot, pdf1_plot, x2_plot, pdf2_plot, label1, label2, "Value", "Density", "PDF/PMF Comparison", dist_type_1, dist_type_2, hide_params, is_cdf=False, mean1=mean1, mean2=mean2)
 
     # st.subheader("CDF of Distributions")
     if dist_type_1 == "Discrete":
@@ -273,4 +350,4 @@ with cols[1]:
         cdf2_plot = np.interp(x_common, x2, cdf2)
         x2_cdf = x_common
 
-    plot_distributions(x1_cdf, cdf1_plot, x2_cdf, cdf2_plot, label1, label2, "Value", "Cumulative Probability", "CDF Comparison", dist_type_1, dist_type_2, hide_params)
+    plot_distributions(x1_cdf, cdf1_plot, x2_cdf, cdf2_plot, label1, label2, "Value", "Cumulative Probability", "CDF Comparison", dist_type_1, dist_type_2, hide_params, is_cdf=True)
