@@ -128,74 +128,122 @@ def draw_pie_chart(labels, probs):
     plt.title("Ground Truth Distribution")
     return fig
 
-# --- Bar Chart: Ground Truth ---
-def draw_ground_truth_bar(labels, probs):
-    pastel_colors = ['#ffc0cb', '#add8e6', '#ffe4b5', '#b0e0e6', '#fcd5ce', '#d0f4de']
-    fig, ax = plt.subplots()
-    ax.bar(labels, probs, color=pastel_colors[:len(labels)])
-    ax.set_ylim([0, 1])
-    ax.set_title("Ground Truth Distribution")
+import plotly.graph_objects as go
+
+# --- Comparison Piechart (Donut Style) ---
+def draw_comparison_pie_plotly(labels, ground_truth, experiment_result):
+    fig = go.Figure()
+
+    # Outer Ring
+    fig.add_trace(go.Pie(
+        labels=labels,
+        values=ground_truth,
+        name="Ground Truth",
+        hole=0.5,
+        direction='clockwise',
+        sort=False,
+        marker=dict(colors=['#ffcccc', '#cce6ff']),
+        textinfo='none',
+        hoverinfo='label+percent+name',
+        showlegend=False,
+        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+
+    # Inner Ring
+    fig.add_trace(go.Pie(
+        labels=labels,
+        values=experiment_result,
+        name="Experiment Result",
+        hole=0.75,
+        direction='clockwise',
+        sort=False,
+        marker=dict(colors=['#ff9999', '#99ccff']),
+        textinfo='none',
+        hoverinfo='label+percent+name',
+        showlegend=True,
+        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+
+    fig.update_layout(
+        title=dict(
+            text=f"Experiment result after trial {rewind}",
+            font=dict(size=18, color="#222"),
+            x=0.5,
+            xanchor='center'
+        ),
+        legend=dict(
+            orientation='h',
+            x=0.3,
+            y=1.1,
+            font=dict(color="#222")
+        ),
+        font=dict(color="#222"),
+        paper_bgcolor='white',
+        plot_bgcolor='white',
+        margin=dict(t=100),
+        height=500,
+        width=500
+    )
     return fig
 
-# --- Bar Chart: Comparison ---
-def draw_comparison_bar(labels, ground_truth, experiment_result):
-    pastel_colors = ['#ffc0cb', '#add8e6', '#ffe4b5', '#b0e0e6', '#fcd5ce', '#d0f4de']
-    solid_colors = ['#ff7597', '#69bce7', '#ffc107', '#76eec6', '#e29578', '#99d98c']
-    x = np.arange(len(labels))
-    width = 0.35
-    fig, ax = plt.subplots()
-    ax.bar(x - width/2, ground_truth, width, label='Ground Truth', color=pastel_colors[:len(labels)])
-    ax.bar(x + width/2, experiment_result, width, label='Experiment Result', color=solid_colors[:len(labels)])
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.set_ylim([0, 1])
-    ax.set_title(f"Experiment result after trial {rewind}")
-    ax.legend()
+
+# --- Bar Chart Comparison ---
+def draw_comparison_bar_plotly(labels, ground_truth, experiment_result):
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=labels,
+        y=ground_truth,
+        name='Ground Truth',
+        marker_color='#ffc0cb',
+        text=[f"{v*100:.1f}%" for v in ground_truth],
+        textposition='outside',
+        hovertemplate='Ground Truth: %{text}<extra></extra>',
+    ))
+
+    fig.add_trace(go.Bar(
+        x=labels,
+        y=experiment_result,
+        name='Experiment Result',
+        marker_color='#ff7597',
+        text=[f"{v*100:.1f}%" for v in experiment_result],
+        textposition='outside',
+        hovertemplate='Experiment Result: %{text}<extra></extra>',
+    ))
+
+    fig.update_layout(
+    title=dict(
+        text='Bar Comparison: Ground Truth vs Experiment',
+        font=dict(size=18, color="#222"),
+        x=0.5,
+        xanchor='center'
+    ),
+    xaxis=dict(
+        title=dict(text='Outcome', font=dict(color="#222")),
+        tickfont=dict(color="#222")
+    ),
+    yaxis=dict(
+        title=dict(text='Probability', font=dict(color="#222")),
+        tickfont=dict(color="#222")
+    ),
+    font=dict(color="#222"),
+    legend=dict(font=dict(color="#222")),
+    paper_bgcolor='white',
+    plot_bgcolor='white',
+    height=500
+)
+
     return fig
 
-# --- Comparison Piechart (Concentric Donuts) ---
-def draw_comparison_pie(labels, ground_truth, experiment_result):
-    colors_outer = ['#ffc0cb', '#add8e6', '#ffe4b5', '#b0e0e6', '#fcd5ce', '#d0f4de']
-    colors_inner = ['#ff7597', '#69bce7', '#ffc107', '#76eec6', '#e29578', '#99d98c']
 
-    fig, ax = plt.subplots()
-    ax.axis('equal')
-
-    wedges_outer, _ = ax.pie(ground_truth,
-                             radius=1,
-                             labels=None,
-                             startangle=90,
-                             colors=colors_outer[:len(labels)],
-                             wedgeprops=dict(width=0.3, edgecolor='white'))
-
-    wedges_inner, _ = ax.pie(experiment_result,
-                             radius=0.7,
-                             labels=None,
-                             startangle=90,
-                             colors=colors_inner[:len(labels)],
-                             wedgeprops=dict(width=0.3, edgecolor='white'))
-
-    plt.title(f"Experiment result after trial {rewind}", fontsize=14, weight='bold')
-
-    plt.legend(wedges_outer,
-               labels,
-               title="",
-               loc="upper center",
-               bbox_to_anchor=(0.5, 1.15),
-               ncol=len(labels),
-               frameon=False)
-
-    return fig
-
-# --- Layout ---
+# --- Final Layout with Charts ---
 col1, col2 = st.columns(2)
-with col1:
-    st.pyplot(draw_pie_chart(sorted_labels, sorted_probs))
-with col2:
-    st.pyplot(draw_comparison_pie(sorted_labels, sorted_probs, sorted_exp_probs))
 
-col3, col4 = st.columns(2)
-with col3:
-    st.pyplot(draw_ground_truth_bar(sorted_labels, sorted_probs))
-with col4:
-    st.pyplot(draw_comparison_bar(sorted_labels, sorted_probs, sorted_exp_probs))
+with col1:
+    st.markdown("### Piechart")
+    st.plotly_chart(draw_comparison_pie_plotly(sorted_labels, sorted_probs, sorted_exp_probs), use_container_width=True)
+
+with col2:
+    st.markdown("### Bar Comparison")
+    st.plotly_chart(draw_comparison_bar_plotly(sorted_labels, sorted_probs, sorted_exp_probs), use_container_width=True)
+
