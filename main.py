@@ -18,7 +18,7 @@ with st.sidebar:
     st.header("Navigation")
 
     st.page_link("main.py", label="Home")
-    st.page_link("pages/table_of_contents.py", label="Table of Contents")
+    st.page_link("pages/table_of_contents.py", label="Courses")
     with st.expander("Simulations", expanded=True):
         st.page_link("pages/pdf_cdf_distribution.py", label="PDF CDF Distribution")
         st.page_link("pages/law_of_larger_numbers.py", label="Law of Large_Number")
@@ -184,7 +184,7 @@ st.markdown("""
     <img src="http://math.umd.edu/~jon712/STAT400/UMD_CMNS_Math.png" alt="UMD Math Logo">
     <div class="nav-links">
         <a href="https://math.umd.edu/~jon712/index.html">Home</a>
-        <a href="#">Table of Contents</a>
+        <a href="https://math.umd.edu/~jon712/teaching.html">Courses</a>
         <a href="https://www.youtube.com/playlist?list=PL90IJGPVcgidgadbkRBzMbsjeGRcDxPXR">Videos</a>
         <a href="https://math.umd.edu/~jon712/index.html">About</a>
     </div>
